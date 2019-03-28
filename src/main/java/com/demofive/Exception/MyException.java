@@ -3,6 +3,10 @@ package com.demofive.Exception;
 /**
  * Created by Martin on 2019/3/24.
  */
+
+/**
+ * 自定义运行期异常
+ */
 public class MyException extends RuntimeException{
     static final long serialVersionUID = 1L;
 
