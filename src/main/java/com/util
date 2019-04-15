@@ -1,0 +1,286 @@
+package com.util;
+
+import com.egzosn.pay.common.util.MatrixToImageWriter;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import lombok.extern.slf4j.Slf4j;
+import meiwen.crm.config.constants.AliOssConstants;
+import meiwen.crm.model.wt.share.WtShare;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.egzosn.pay.common.util.MatrixToImageWriter.toBufferedImage;
+
+/**
+ * @author xsg
+ * @date 2018-12-03 16:50
+ */
+@Slf4j
+public class MeiwenImageUtil {
+
+  private static final String FOLDER = "meiri/share/image/";
+  /**
+   * 二维码参数
+   */
+  private static final Map<EncodeHintType, Object> HINTS = new HashMap<>();
+
+  static {
+    // 字符编码
+    HINTS.put(EncodeHintType.CHARACTER_SET, "utf-8");
+    // 容错等级 L、M、Q、H 其中 L 为最低, H 为最高
+    HINTS.put(EncodeHintType.ERROR_CORRECTION,
+      ErrorCorrectionLevel.H);
+//     二维码与图片边距
+    HINTS.put(EncodeHintType.MARGIN, 2);
+  }
+
+  /**
+   * 生成二维码
+   */
+  public static BufferedImage createQrCode(String content, int width, int height, int margin)
+    throws WriterException, IOException {
+    BitMatrix bitMatrix = new MultiFormatWriter()
+      .encode(content, BarcodeFormat.QR_CODE, width, height, HINTS);
+    bitMatrix = updateBit(bitMatrix, margin);
+    return toBufferedImage(bitMatrix);
+  }
+
+  private static BitMatrix updateBit(BitMatrix matrix, int margin) {
+    int tempM = margin * 2;
+    //获取二维码图案的属性
+    int[] rec = matrix.getEnclosingRectangle();
+    int resWidth = rec[2] + tempM;
+    int resHeight = rec[3] + tempM;
+    // 按照自定义边框生成新的BitMatrix
+    BitMatrix resMatrix = new BitMatrix(resWidth, resHeight);
+    resMatrix.clear();
+    //循环，将二维码图案绘制到新的bitMatrix中
+    for (int i = margin; i < resWidth - margin; i++) {
+      for (int j = margin; j < resHeight - margin; j++) {
+        if (matrix.get(i - margin + rec[0], j - margin + rec[1])) {
+          resMatrix.set(i, j);
+        }
+      }
+    }
+    return resMatrix;
+  }
+
+  /**
+   * 合成图片
+   */
+  private static InputStream mixImage(BufferedImage bgImage, WtShare wtShare) {
+
+    ImageOutputStream imOut = null;
+    ByteArrayOutputStream bs = null;
+    try {
+      Graphics2D g = bgImage.createGraphics();
+      //设置字体
+      g.setFont(new Font("宋体", Font.BOLD, 25));
+
+      //根据图片的背景设置水印颜色
+      g.setColor(Color.WHITE);
+      //设置时分的坐标
+      g.drawString(wtShare.getMinuteTimeStr(), 62, 55);
+
+      g.setFont(new Font("楷体", Font.BOLD, 30));
+      g.setColor(Color.BLACK);
+      //设置日期的坐标
+      g.drawString(wtShare.getDateTimeStr(), 35, 233);
+      //设置总收入的坐标
+
+      int size = 20;
+
+      int x = 748 - size * (wtShare.getGrossIncome().length() - 2) - 90;
+      int x1 = 748 - size * (wtShare.getPromotionIncome().length() - 2) - 90;
+      int x2 = 748 - size * (wtShare.getShareIncome().length() - 2) - 90;
+      g.drawString(wtShare.getGrossIncome(), x, 296);
+      //设置推广阅读奖金的坐标
+      g.drawString(wtShare.getPromotionIncome(), x1, 390);
+      //设置分享奖励的坐标
+      g.drawString(wtShare.getShareIncome(), x2, 490);
+//      g.drawString(wtShare.getGrossIncome(), x, 296);
+//      //设置推广阅读奖金的坐标
+//      g.drawString(wtShare.getPromotionIncome(), 530, 390);
+//      //设置分享奖励的坐标
+//      g.drawString(wtShare.getShareIncome(), 630, 478);
+      bs = new ByteArrayOutputStream();
+      imOut = ImageIO.createImageOutputStream(bs);
+      ImageIO.write(bgImage, "jpg", imOut);
+      return new ByteArrayInputStream(bs.toByteArray());
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+    } finally {
+      try {
+        Objects.requireNonNull(bs).close();
+        Objects.requireNonNull(imOut).close();
+      } catch (IOException e) {
+        log.error(e.getMessage(), e);
+      }
+    }
+    return null;
+  }
+
+  String[] makeLines(String[] labels, String[] data, int width) {
+    String[] lines = new String[labels.length];
+    StringBuilder spaces = new StringBuilder();
+    for (int i = 0; i < width; i++) {
+      spaces.append(" ");
+    }
+
+    for (int i = 0; i < labels.length; i++) {
+      lines[i] = labels[i] + spaces.substring(0, width - data[i].length() - labels[i].length()) + data[i];
+    }
+    return lines;
+  }
+
+
+  private static int getTextLength(String waterMarkContent, Graphics2D g) {
+    return g.getFontMetrics(g.getFont())
+      .charsWidth(waterMarkContent.toCharArray(), 0, waterMarkContent.length());
+  }
+
+  /**
+   * 调用nodejs 生成海报
+   *
+   * @param command 命令
+   */
+  public static void createPoster(String command) {
+    try {
+      final Process process = Runtime.getRuntime().exec(command);
+      log.info("start run cmd:{}", command);
+
+      //处理InputStream的线程
+      new Thread() {
+        @Override
+        public void run() {
+          BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+          String line = null;
+
+          try {
+            while ((line = in.readLine()) != null) {
+              log.info("output: " + line);
+            }
+          } catch (IOException e) {
+            log.error(e.getMessage(), e);
+          } finally {
+            try {
+              in.close();
+            } catch (IOException e) {
+              log.error(e.getMessage(), e);
+            }
+          }
+        }
+      }.start();
+
+      new Thread() {
+        @Override
+        public void run() {
+          BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+          String line = null;
+
+          try {
+            while ((line = err.readLine()) != null) {
+              log.info("err: " + line);
+            }
+          } catch (IOException e) {
+            log.error(e.getMessage(), e);
+          } finally {
+            try {
+              err.close();
+            } catch (IOException e) {
+              log.error(e.getMessage(), e);
+            }
+          }
+        }
+      }.start();
+
+      process.waitFor();
+      System.out.println("finish run cmd=" + command);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+
+  }
+
+  /**
+   * 二维码base64
+   */
+  public static String createQRCode(String content, int width, int height, int margin)
+    throws WriterException, IOException {
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+    BitMatrix bitMatrix = new MultiFormatWriter()
+      .encode(content, BarcodeFormat.QR_CODE, width, height, HINTS);
+    //toPath() 方法由 jdk1.7 及以上提供
+    MatrixToImageWriter.writeToStream(bitMatrix, "jpeg", baos);
+    return Base64.getEncoder().encodeToString(baos.toByteArray());
+  }
+
+
+  /**
+   * 二维码base64
+   */
+  public static String createQRCode(String content, int size, int margin) {
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    BitMatrix bitMatrix = null;
+    try {
+      bitMatrix = new MultiFormatWriter()
+        .encode(content, BarcodeFormat.QR_CODE, size, size, HINTS);
+      MatrixToImageWriter.writeToStream(bitMatrix, "jpeg", baos);
+    } catch (WriterException | IOException e) {
+      log.error(e.getMessage(), e);
+    }
+    return Base64.getEncoder().encodeToString(baos.toByteArray());
+  }
+
+  /**
+   * 生成海报,并上传oss
+   *
+   * <p>
+   * 1.根据分享链接生成二维码
+   * <p>
+   * 2.将文字和二维码嵌入海报
+   * <p>
+   * 3.上传oss
+   * <p>
+   * 4.返回url
+   * </p>
+   */
+  public static String createPoster(WtShare wtShare) {
+    try {
+      BufferedImage bgImage = ImageIO.read(new URL(AliOssConstants.WT_SHARE_BG));
+
+      InputStream inputStream = mixImage(bgImage, wtShare);
+
+      String filename = AliOssConstants.fileDir + "wtshare_" + System.currentTimeMillis() + ".jpg";
+      String ossUrl = AliOssUtil.uploadImage(inputStream, filename);
+      return ossUrl;
+    } catch (IOException e) {
+      log.error("create qr code failed,{}", e.getMessage());
+      log.error(e.getMessage(), e);
+    }
+    return "";
+  }
+
+  public static void main(String[] args) {
+    String poster = createPoster(WtShare.builder().time(LocalDateTime.now()).grossIncome("+1.50").promotionIncome("+17333.00").shareIncome("+878.00").build());
+    System.out.println(poster);
+  }
+}
