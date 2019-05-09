@@ -1,4 +1,4 @@
-package com.demofive.Exception;
+package com.demofive.core.Exception;
 
 /**
  * Created by Martin on 2019/3/24.

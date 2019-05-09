@@ -1,10 +1,8 @@
 package com.demofive.service.impl;
 
-import com.demofive.Exception.MyException;
 import com.demofive.dao.UserDao;
 import com.demofive.domain.User;
 import com.demofive.service.UserService;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
