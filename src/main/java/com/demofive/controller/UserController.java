@@ -71,4 +71,12 @@ public class UserController {
         Integer saveNum = userService.saveUser(user);
         return saveNum;
     }
+
+
+    @RequestMapping(value = "/countUser", method=RequestMethod.POST)
+    @ResponseBody
+    private Integer countUser(@RequestBody User user){
+        Integer countNum = userService.countUser();
+        return countNum;
+    }
 }

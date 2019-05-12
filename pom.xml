@@ -108,6 +108,14 @@
 			<artifactId>commons-pool2</artifactId>
 		</dependency>
 
+		<!-- dubbo和curator的依赖 -->
+		<dependency>
+			<groupId>com.alibaba.boot</groupId>
+			<artifactId>dubbo-spring-boot-starter</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

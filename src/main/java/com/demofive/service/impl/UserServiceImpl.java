@@ -1,48 +1,35 @@
 package com.demofive.service.impl;
 
-import com.demofive.dao.UserDao;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.demofive.domain.User;
+import com.demofive.manager.UserMgr;
 import com.demofive.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 
 /**
- * Created by Martin on 2019/3/23.
+ * Created by Martin on 2019/5/11.
  */
-@Transactional
-@Service(value = "userService")
+@Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserDao userDao;
+    @Reference
+    private UserMgr userMgr;
 
     @Override
     public List<User> listAllUser() {
-        return userDao.listAllUser();
+        return userMgr.listAllUser();
     }
 
-    @Transactional
     @Override
     public Integer saveUser(User user) {
-        int[] arr = new int[]{1,2,3};
-        Integer saveNum = 0;
-        String[] strs = new String[]{};
-            saveNum = userDao.saveUser(user);
-            System.out.println("saveNum============="+saveNum);
-            Integer countNum = userDao.countUser();
-            System.out.println("countNum============="+countNum);
-//            throw new RuntimeException();
-//        int s = 1/0;
-        System.out.println("countNum============="+countNum);
-//        throw new MyException("222222");
-        return saveNum;
+        return userMgr.saveUser(user);
     }
 
     @Override
     public Integer countUser() {
-        return userDao.countUser();
+        return userMgr.countUser();
     }
+
+
 }
