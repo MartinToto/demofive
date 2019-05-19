@@ -1,11 +1,16 @@
 package com.demofive.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Martin on 2019/3/21.
  */
-public class User {
+public class User implements Serializable{
+
+
+    private static final long serialVersionUID = 1L;
+
     String email;
     String passWord;
     String userName;

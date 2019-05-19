@@ -4,16 +4,18 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.demofive.domain.User;
 import com.demofive.manager.UserMgr;
 import com.demofive.service.UserService;
-import org.springframework.stereotype.Service;
+import com.alibaba.dubbo.config.annotation.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 import java.util.List;
 
 /**
  * Created by Martin on 2019/5/11.
  */
-@Service
+@Service(version = "1.0.0")
 public class UserServiceImpl implements UserService {
-    @Reference
+    @Autowired
     private UserMgr userMgr;
 
     @Override

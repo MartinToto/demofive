@@ -1,10 +1,11 @@
 package com.demofive.manager.impl;
 
-import com.alibaba.dubbo.config.annotation.Service;
+
 import com.demofive.dao.UserDao;
 import com.demofive.domain.User;
 import com.demofive.manager.UserMgr;
 import com.demofive.service.UserService;
+import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import java.util.List;
  * Created by Martin on 2019/3/23.
  */
 @Transactional
-@Service()
+@Service("userMgr")
 public class UserMgrImpl implements UserMgr {
     @Autowired
     private UserDao userDao;
