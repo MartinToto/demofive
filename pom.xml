@@ -8,11 +8,14 @@
 		<version>2.1.3.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.demofive</groupId>
-	<artifactId>demofive</artifactId>
+	<groupId>com.martin.vodka</groupId>
+	<artifactId>vodka_service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demofive</name>
+	<name>vodka_service</name>
 	<description>Demo project for Spring Boot</description>
+	<packaging>war</packaging>
+
+
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -108,13 +111,23 @@
 			<artifactId>commons-pool2</artifactId>
 		</dependency>
 
-		<!-- dubbo和curator的依赖 -->
-		<dependency>
-			<groupId>com.alibaba.boot</groupId>
-			<artifactId>dubbo-spring-boot-starter</artifactId>
-			<version>0.2.0</version>
-		</dependency>
 
+		<dependency>
+			<groupId>com.martin.vodka</groupId>
+			<artifactId>vodka-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.springframework</groupId>-->
+			<!--<artifactId>spring-aop</artifactId>-->
+			<!--<version>5.1.6.RELEASE</version>-->
+		<!--</dependency>-->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+			<version>2.1.4.RELEASE</version>
+		</dependency>
 
 	</dependencies>
 

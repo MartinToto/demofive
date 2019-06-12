@@ -2,13 +2,14 @@ package com.demofive.manager.impl;
 
 
 import com.demofive.dao.UserDao;
-import com.demofive.domain.User;
+
 import com.demofive.manager.UserMgr;
-import com.demofive.service.UserService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.transaction.annotation.Transactional;
+import user.domain.User;
 
 
 import java.util.List;

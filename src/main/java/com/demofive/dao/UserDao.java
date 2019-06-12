@@ -1,7 +1,8 @@
 package com.demofive.dao;
 
-import com.demofive.domain.User;
+
 import org.apache.ibatis.annotations.Mapper;
+import user.domain.User;
 
 import java.util.List;
 

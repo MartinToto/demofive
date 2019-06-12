@@ -7,7 +7,7 @@
     </insert>
 
 
-    <select id="listAllUser" resultType="com.demofive.domain.User">
+    <select id="listAllUser" resultType="user.domain.User">
         select * from USER ;
     </select>
     <select id="countUser" resultType="java.lang.Integer">

@@ -1,6 +1,8 @@
 package com.demofive.manager;
 
-import com.demofive.domain.User;
+
+
+import user.domain.User;
 
 import java.util.List;
 
